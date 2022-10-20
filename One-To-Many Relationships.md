@@ -12,13 +12,8 @@ I’m having trouble running a query that will return ALL employees' either list
 
 Example Employee table <br>
 
-╔════╦══════╗ <br>
-║ ID ║ NAME ║ <br>
-╠════╬══════╣ <br>
-║  1 ║ Bob  ║ <br>
-║  2 ║ Tom  ║ <br>
-║  3 ║ John ║ <br>
-╚════╩══════╩ <br>
+![image](https://user-images.githubusercontent.com/115500959/196854126-5549b43a-e66d-4449-8200-a5f2b5463fa3.png)
+
 
 Example Training table <br>
 
