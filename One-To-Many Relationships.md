@@ -12,12 +12,12 @@ I’m having trouble running a query that will return ALL employees' either list
 
 Example Employee table <br>
 
-╔════╦══════╗
-║ ID ║ NAME ║
-╠════╬══════╣
-║  1 ║ Bob  ║
-║  2 ║ Tom  ║
-║  3 ║ John ║
+╔════╦══════╗ <br>
+║ ID ║ NAME ║ <br>
+╠════╬══════╣ <br>
+║  1 ║ Bob  ║ <br>
+║  2 ║ Tom  ║ <br>
+║  3 ║ John ║ <br>
 ╚════╩══════╩ <br>
 
 Example Training table <br>
