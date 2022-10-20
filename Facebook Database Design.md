@@ -3,7 +3,6 @@
 Face Book Data Base Design
 
 ## Features
-
 ![image](https://user-images.githubusercontent.com/115500959/197022529-f7e7c010-8780-4cb9-8ad6-6606ec52b4aa.png)
 
 
