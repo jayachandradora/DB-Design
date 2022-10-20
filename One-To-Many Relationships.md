@@ -30,3 +30,6 @@ Use LEFT JOIN and move the filtering condition during the joining of the table (
 SELECT  employee.id, employee.name, training.class FROM  employee    <br>
         LEFT JOIN training ON employee.id = training.department_id AND training.class LIKE '%SECURITY%' <br>
         ORDER  BY employee.id <br>
+
+### One to Many - One Question can have many Answers
+![image](https://user-images.githubusercontent.com/115500959/196873943-1442d031-2bf8-4650-a120-311b0794e005.png)
