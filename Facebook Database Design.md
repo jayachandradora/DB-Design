@@ -16,5 +16,6 @@ Face Book Data Base Design
 ![image](https://user-images.githubusercontent.com/115500959/197025112-80f3616a-9a54-4c24-9b7e-7326d93c9da4.png)
 
 ## SQL Query: All your Text Posts
-![image](https://user-images.githubusercontent.com/115500959/197023963-f87bc493-37a8-4e14-8558-addab3fa8582.png)
+![image](https://user-images.githubusercontent.com/115500959/197025373-28bab2c4-e6b1-41f1-92db-c11f24fab4c7.png)
+
 
