@@ -19,3 +19,5 @@ One To One Relationship
 ![image](https://user-images.githubusercontent.com/115500959/196846779-7a8c3756-44ab-45a0-80e8-306e14fadc2b.png)
 
 ![image](https://user-images.githubusercontent.com/115500959/196846929-57cf2feb-8658-4b59-a225-8ce721b0ca1c.png)
+
+https://www.youtube.com/watch?v=XrFzDboHbaQ&ab_channel=DatabaseStar
