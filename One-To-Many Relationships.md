@@ -16,24 +16,12 @@ Example Employee table <br>
 
 
 Example Training table <br>
-
-╔════╦══════════════╦════════════════════╗
-║ ID ║ DEPARTMENT_ID║       CLASS        ║
-╠════╬══════════════╬════════════════════╣
-║  1 ║           1  ║ Security Awareness ║
-║  2 ║           1  ║ Workplace Safety   ║
-║  3 ║           2  ║ Security Awareness ║
-╚════╩══════════════╩════════════════════╝ <br>
+![image](https://user-images.githubusercontent.com/115500959/196855229-5857bf55-bfb1-4343-b550-d2f696e42ef5.png)
+ <br>
 
 Target result <br>
 
-╔════╦══════╦════════════════════╗
-║ ID ║ NAME ║       CLASS        ║
-╠════╬══════╬════════════════════╣
-║  1 ║ Bob  ║ Security Awareness ║
-║  2 ║ Tom  ║ Security Awareness ║
-║  3 ║ John ║ (null)             ║
-╚════╩══════╩════════════════════╝ <br>
+![image](https://user-images.githubusercontent.com/115500959/196855309-a8f4202b-7207-4ebb-b2e5-57040ce69132.png)<br>
 
 Use LEFT JOIN and move the filtering condition during the joining of the table (specifically in the ON clause)
 
