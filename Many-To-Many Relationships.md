@@ -16,3 +16,7 @@ Many-To-Many Relationships
 ![image](https://user-images.githubusercontent.com/115500959/196848439-971dcfc9-d219-41e6-8ec7-78083941202e.png)
 
 ![image](https://user-images.githubusercontent.com/115500959/196848501-6a4d1003-2083-401a-afec-1ed60cf63659.png)
+
+### Another Many to Many Example.
+
+![image](https://user-images.githubusercontent.com/115500959/196874577-6155bd40-c22d-4172-8694-5d5c60f99874.png)
