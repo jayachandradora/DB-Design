@@ -28,4 +28,4 @@ Below is the sample code:
 
 - ‘Serializable’ is the highest isolation level and guarantees safety from Dirty, Nonrepeatable and Phantoms reads.
 - One thing to note here, within a transaction if we read rows we get a write lock on them so that they can’t be updated by anyone else.
-= Once the above database transaction is successful, we can start tracking the reservation in ActiveReservationService.
+- Once the above database transaction is successful, we can start tracking the reservation in ActiveReservationService.
