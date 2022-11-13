@@ -19,6 +19,17 @@ Here are a few observations about the data we are going to store:
 ### High Level Design
 ![image](https://user-images.githubusercontent.com/115500959/201508381-f1edbfdc-e448-4480-bec9-3286a6dca521.png)
 
+### Extension to these design
+1. Payment gate way
+	- Walet payment
+	- Gift voucher payment
+	- Net banking
+	- redme points 	
+2. Cache service
+3. Meta data Service
+4. Search service with large extent (In-memory store for suggestion and search result for ELK stack and high search item in the cache service.
+5. User contact service - this required while booking a ticket for sending notification.
+
 ### Concurrency
 
 - How to handle concurrency; such that no two users are able to book same seat ?
