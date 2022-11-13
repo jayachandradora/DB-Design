@@ -83,4 +83,11 @@ https://in.bookmyshow.com/api/explore/cities/{RRR}/bookticket/{5}/reserveseats/
 	"Convenience fees": 200,
 	"Food & Beverage": 300
 }
+
+List<City> getCities()
+List<Theater> getTheaters(city)
+List<Show> getShows(theater)
+List<List<Seats>> getSeats(show)
+Bill researveSeat(seats)
+Invoice makePayment(bill)
 ```
