@@ -17,7 +17,7 @@ Here are a few observations about the data we are going to store:
 ![image](https://user-images.githubusercontent.com/115500959/199647656-2fc850f9-564d-4f46-9e7d-31f4cf71eb9c.png)
 
 ### High Level Design
-![image](https://user-images.githubusercontent.com/115500959/201508340-ad8f1389-490d-473a-a0e3-fd0f7ba356cb.png)
+![image](https://user-images.githubusercontent.com/115500959/201508381-f1edbfdc-e448-4480-bec9-3286a6dca521.png)
 
 ### Concurrency
 
