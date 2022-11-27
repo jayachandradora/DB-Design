@@ -91,3 +91,121 @@ List<List<Seats>> getSeats(show)
 Bill researveSeat(seats)
 Invoice makePayment(bill)
 ```
+
+## DB Design Code
+----------------
+
+https://dbdiagram.io/d/6355fbcc4709410195c5a6d5
+
+``` ruby
+
+table cities{
+  id int pk
+  name varchar
+  state varchar
+  zipcode varchar
+}
+
+table cinema{
+  id int pk
+  name varchar
+  total_halls varchar
+  cities_id int
+}
+
+ref cinema: cinema.cities_id > cities.id
+
+table cinema_hall{
+  id int pk
+  name varchar
+  total_seats int 
+  cinema_id int
+}
+
+ref cinema_hall: cinema_hall.cinema_id > cinema.id
+
+table cinema_seat{
+  id int pk
+  number int
+  availability boolean
+  type enum
+  cinema_hall_id int
+}
+
+ref cinema_seat: cinema_seat.cinema_hall_id > cinema_hall.id
+
+table show_seat{
+  id pk
+  status varchar
+  price int
+  cinema_id int
+  booking_id int
+  show_id int
+}
+
+ref show_seat: show_seat.show_id > cinema_seat.id
+
+table show{
+  show_id int pk
+  show_date date
+  start_time timestamp
+  end_time timestamp
+  cinema_id int
+  movie_id int 
+}
+
+table movie{
+  id int pk
+  movie_name varchar
+  title varchar
+  duration int
+  language varchar
+  release_date date
+  country varchar
+}
+
+ref show: show.movie_id > movie.id
+ref show: show.cinema_id > show_seat.id
+
+table booking{
+  id int pk
+  number_of_seat int
+  time_stamp timestamp
+  status enum
+  show_id int
+  user_id int 
+}
+
+ref booking: booking.show_id > show.show_id
+ref booking: booking.user_id > user.id
+
+table payment{
+  id int pk
+  amount int
+  time_stamp timestamp
+  discount int
+  remote_transaction_id int
+  payment_type enum
+  booking_id int
+  user_id int
+}
+
+ref payment: payment.user_id > user.id
+ref payment: payment.booking_id > booking.id
+
+table user{
+  id pk
+  first_name varchar 
+  last_name varchar
+  country varchar
+}
+
+table post{
+  id int
+  created_user_id int
+  post_details varchar
+  date date
+}
+
+ref post: post.created_user_id > user.id
+```
