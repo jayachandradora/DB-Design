@@ -97,7 +97,7 @@ Invoice makePayment(bill)
 
 https://dbdiagram.io/d/6355fbcc4709410195c5a6d5
 
-``` ruby
+``` rubby
 
 table cities{
   id int pk
