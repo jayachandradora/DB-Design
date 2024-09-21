@@ -129,6 +129,8 @@ public class Main {
 
 This setup allows you to manage the customer-order relationship effectively with Hibernate, where multiple orders can be linked to a single customer.
 
+## Technical differences between one-to-many and many-to-one relationships
+
 The technical differences between one-to-many and many-to-one relationships in database design and Hibernate can be understood through several key aspects:
 
 ### 1. **Data Structure in the Database**
