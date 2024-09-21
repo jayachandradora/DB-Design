@@ -1,4 +1,136 @@
-# DB-Design
+# One-To-Many Relationships
+
+Sure! Here’s a quick example of a one-to-many relationship between two entities in a database using Hibernate in Java.
+
+### Database Schema
+
+Assume we have two entities: `User` and `Post`. A user can have multiple posts, but each post belongs to one user.
+
+```sql
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    content TEXT NOT NULL,
+    user_id INT REFERENCES users(id)
+);
+```
+
+### Hibernate Entities
+
+#### User Entity
+
+```java
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+@Table(name = "users")
+public class User {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Post> posts;
+
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public List<Post> getPosts() { return posts; }
+    public void setPosts(List<Post> posts) { this.posts = posts; }
+}
+```
+
+#### Post Entity
+
+```java
+import javax.persistence.*;
+
+@Entity
+@Table(name = "posts")
+public class Post {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+    private String content;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+}
+```
+
+### Example Usage
+
+Here’s how you might use these entities in a Hibernate session:
+
+```java
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+public class Main {
+    public static void main(String[] args) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+
+        User user = new User();
+        user.setName("John Doe");
+
+        Post post1 = new Post();
+        post1.setTitle("First Post");
+        post1.setContent("Content of the first post.");
+        post1.setUser(user);
+
+        Post post2 = new Post();
+        post2.setTitle("Second Post");
+        post2.setContent("Content of the second post.");
+        post2.setUser(user);
+
+        user.setPosts(List.of(post1, post2));
+
+        session.save(user); // This will also save the posts due to CascadeType.ALL
+
+        transaction.commit();
+        session.close();
+    }
+}
+```
+
+### Summary
+
+- **Entities**: The `User` entity has a one-to-many relationship with the `Post` entity.
+- **Annotations**: The `@OneToMany` and `@ManyToOne` annotations define the relationship in Hibernate.
+- **Cascade**: Using `CascadeType.ALL` ensures that when you save a user, their posts are saved automatically.
+
+This setup allows you to manage user-post relationships effectively with Hibernate.
 
 SQL query one to many relationship
 
