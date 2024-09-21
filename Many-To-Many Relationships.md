@@ -129,6 +129,135 @@ public class Main {
 
 This setup allows you to manage the customer-order relationship effectively with Hibernate, where multiple orders can be linked to a single customer.
 
+The technical differences between one-to-many and many-to-one relationships in database design and Hibernate can be understood through several key aspects:
+
+### 1. **Data Structure in the Database**
+
+- **One-to-Many**:
+  - In a one-to-many relationship, a single record in the "one" table can relate to multiple records in the "many" table. 
+  - This is typically represented by a foreign key in the "many" table pointing back to the "one" table.
+
+  **Example**: 
+  - Table `User` (one):
+    ```sql
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL
+    );
+    ```
+
+  - Table `Post` (many):
+    ```sql
+    CREATE TABLE posts (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(100) NOT NULL,
+        user_id INT REFERENCES users(id) -- Foreign key to User
+    );
+    ```
+
+- **Many-to-One**:
+  - In a many-to-one relationship, multiple records in the "many" table can relate to a single record in the "one" table. 
+  - The structure is the same, but the emphasis is on the "many" side having a foreign key that references the "one" side.
+
+  **Example**: 
+  - Table `Order` (many):
+    ```sql
+    CREATE TABLE orders (
+        id SERIAL PRIMARY KEY,
+        order_number VARCHAR(50) NOT NULL,
+        customer_id INT REFERENCES customers(id) -- Foreign key to Customer
+    );
+    ```
+
+  - Table `Customer` (one):
+    ```sql
+    CREATE TABLE customers (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL
+    );
+    ```
+
+### 2. **Entity Mapping in Hibernate**
+
+- **One-to-Many**:
+  - The entity representing the "one" side (e.g., `User`) has a `@OneToMany` annotation, and the entity representing the "many" side (e.g., `Post`) has a `@ManyToOne` annotation.
+
+  ```java
+  @Entity
+  public class User {
+      @Id
+      private Long id;
+
+      @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+      private List<Post> posts; // Relationship defined here
+  }
+  
+  @Entity
+  public class Post {
+      @Id
+      private Long id;
+
+      @ManyToOne
+      @JoinColumn(name = "user_id", nullable = false)
+      private User user; // Relationship defined here
+  }
+  ```
+
+- **Many-to-One**:
+  - The mapping is conceptually the same, but the focus is on the many side having a reference to the one side.
+
+  ```java
+  @Entity
+  public class Order {
+      @Id
+      private Long id;
+
+      @ManyToOne
+      @JoinColumn(name = "customer_id", nullable = false)
+      private Customer customer; // Relationship defined here
+  }
+
+  @Entity
+  public class Customer {
+      @Id
+      private Long id;
+
+      @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+      private List<Order> orders; // Relationship defined here
+  }
+  ```
+
+### 3. **Data Retrieval**
+
+- **One-to-Many**:
+  - When retrieving a user, you can fetch all associated posts using a single query if you use an appropriate fetch strategy (e.g., `JOIN FETCH`).
+
+  ```java
+  User user = session.createQuery("FROM User u JOIN FETCH u.posts WHERE u.id = :id", User.class)
+                     .setParameter("id", userId)
+                     .getSingleResult();
+  ```
+
+- **Many-to-One**:
+  - When retrieving an order, the associated customer can also be fetched. However, this typically results in querying the `Customer` table for the corresponding record.
+
+  ```java
+  Order order = session.get(Order.class, orderId);
+  Customer customer = order.getCustomer(); // Access the associated customer
+  ```
+
+### 4. **Cardinality and Relationships**
+
+- **One-to-Many**:
+  - Represents a single parent to multiple children. This is useful for aggregating related data (e.g., all posts by a user).
+
+- **Many-to-One**:
+  - Represents multiple children pointing back to a single parent. This is often used when the child entity requires the context of its parent (e.g., all orders made by a customer).
+
+### Conclusion
+
+In technical terms, the primary differences between one-to-many and many-to-one relationships are about the perspective and context of the relationship being modeled, the way foreign keys are structured, the annotations used in Hibernate, and how data retrieval is managed. Both relationships are complementary and often used together to model complex data interactions effectively.
+
 Many-To-Many Relationships
 
 ![image](https://user-images.githubusercontent.com/115500959/196847687-e4483f9f-d007-4317-bf57-36b54d82fde9.png)
