@@ -20,6 +20,14 @@ This tells us fetch 1 records after 3rd row because input is 2 (meaning starts f
 
 ![image](https://user-images.githubusercontent.com/115500959/196879751-25e1a2f1-8286-486b-9c58-e9397f5d6cf9.png)
 
+SELECT e1.employee_id AS Employee_ID_1, e1.employee_name AS Employee_Name_1,
+       e2.employee_id AS Employee_ID_2, e2.employee_name AS Employee_Name_2,
+       e1.department_id AS Department_ID
+FROM employees e1
+JOIN employees e2
+ON e1.department_id = e2.department_id
+WHERE e1.employee_id < e2.employee_id
+ORDER BY e1.department_id, e1.employee_id;
 ### Explanation 
 
 ![image](https://user-images.githubusercontent.com/115500959/196880182-5a3537e9-398f-4f0f-9b15-32cbf7d463c0.png)
