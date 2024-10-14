@@ -40,6 +40,16 @@ This tells us fetch 1 records after 3rd row because input is 2 (meaning starts f
 
 ![image](https://user-images.githubusercontent.com/115500959/196879350-d2233565-c787-40a3-96b1-0bf9967a4962.png)
 
+(SELECT * FROM employees
+ ORDER BY employee_id
+ LIMIT 1) -- First record
+
+UNION ALL
+
+(SELECT * FROM employees
+ ORDER BY employee_id DESC
+ LIMIT 1); -- Last record
+ 
 ## Others
 ![image](https://user-images.githubusercontent.com/115500959/196880456-b3a1c63e-77b5-4b56-8c7e-c85523cfb247.png)
 
