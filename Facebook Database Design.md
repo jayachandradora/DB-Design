@@ -9,51 +9,51 @@ Face Book Data Base Design
 
 <img width="1610" alt="image" src="https://github.com/user-attachments/assets/5c3f7249-9806-4530-9747-2f749740e673" />
 
-```java
+```sql
 
 -- Users Table: Stores information about each user
 CREATE TABLE Users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,           -- Unique ID for each user
-    username VARCHAR(255) UNIQUE NOT NULL,            -- Unique username
-    email VARCHAR(255) UNIQUE NOT NULL,               -- User's email address
-    password_hash VARCHAR(255) NOT NULL,              -- Hashed password
-    first_name VARCHAR(100) NOT NULL,                 -- First name
-    last_name VARCHAR(100) NOT NULL,                  -- Last name
-    birthdate DATE,                                   -- Birthdate of the user
-    gender ENUM('Male', 'Female', 'Other') NOT NULL,  -- Gender of the user
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP    -- Timestamp when the user was created
+    user_id SERIAL PRIMARY KEY,                      -- Unique ID for each user (using SERIAL for auto-increment)
+    username VARCHAR(255) UNIQUE NOT NULL,           -- Unique username
+    email VARCHAR(255) UNIQUE NOT NULL,              -- User's email address
+    password_hash VARCHAR(255) NOT NULL,             -- Hashed password
+    first_name VARCHAR(100) NOT NULL,                -- First name
+    last_name VARCHAR(100) NOT NULL,                 -- Last name
+    birthdate DATE,                                  -- Birthdate of the user
+    gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')),  -- Gender with CHECK constraint
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP -- Timestamp with timezone (PostgreSQL default)
 );
 
 -- Profiles Table: Stores additional profile details for the user
 CREATE TABLE Profiles (
-    profile_id INT AUTO_INCREMENT PRIMARY KEY,       -- Unique profile ID
-    user_id INT,                                     -- Foreign Key to Users table
+    profile_id SERIAL PRIMARY KEY,                   -- Unique profile ID
+    user_id INT NOT NULL,                            -- Foreign Key to Users table
     bio TEXT,                                        -- Bio or description of the user
     profile_picture_url VARCHAR(255),                -- URL to the profile picture
     cover_picture_url VARCHAR(255),                  -- URL to the cover picture
     location VARCHAR(255),                           -- Location of the user
     website_url VARCHAR(255),                        -- User's website link
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp when the profile was updated
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the profile was updated
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
 -- Posts Table: Stores the posts made by users
 CREATE TABLE Posts (
-    post_id INT AUTO_INCREMENT PRIMARY KEY,          -- Unique post ID
-    user_id INT,                                     -- Foreign Key to Users table
+    post_id SERIAL PRIMARY KEY,                      -- Unique post ID
+    user_id INT NOT NULL,                            -- Foreign Key to Users table
     content TEXT NOT NULL,                           -- Content of the post
     image_url VARCHAR(255),                          -- URL to any image or video attached to the post (optional)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp when the post was created
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the post was created
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
 -- Friendships Table: Represents relationships between users
 CREATE TABLE Friendships (
-    friendship_id INT AUTO_INCREMENT PRIMARY KEY,    -- Unique friendship ID
-    user_id_1 INT,                                   -- Foreign Key to Users table (first user)
-    user_id_2 INT,                                   -- Foreign Key to Users table (second user)
-    status ENUM('Pending', 'Accepted', 'Blocked') NOT NULL,  -- Friendship status
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp when the friendship request was created
+    friendship_id SERIAL PRIMARY KEY,                -- Unique friendship ID
+    user_id_1 INT NOT NULL,                          -- Foreign Key to Users table (first user)
+    user_id_2 INT NOT NULL,                          -- Foreign Key to Users table (second user)
+    status VARCHAR(10) CHECK (status IN ('Pending', 'Accepted', 'Blocked')), -- Friendship status with CHECK constraint
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the friendship request was created
     FOREIGN KEY (user_id_1) REFERENCES Users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id_2) REFERENCES Users(user_id) ON DELETE CASCADE,
     CONSTRAINT unique_friendship UNIQUE (user_id_1, user_id_2)
@@ -61,22 +61,22 @@ CREATE TABLE Friendships (
 
 -- Comments Table: Stores the comments on posts
 CREATE TABLE Comments (
-    comment_id INT AUTO_INCREMENT PRIMARY KEY,       -- Unique comment ID
-    post_id INT,                                     -- Foreign Key to Posts table
-    user_id INT,                                     -- Foreign Key to Users table
-    content TEXT NOT NULL,                           -- Content of the comment
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp when the comment was made
+    comment_id SERIAL PRIMARY KEY,                   -- Unique comment ID
+    post_id INT NOT NULL,                             -- Foreign Key to Posts table
+    user_id INT NOT NULL,                             -- Foreign Key to Users table
+    content TEXT NOT NULL,                            -- Content of the comment
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the comment was made
     FOREIGN KEY (post_id) REFERENCES Posts(post_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
 -- Likes Table: Stores the likes given by users on posts or comments
 CREATE TABLE Likes (
-    like_id INT AUTO_INCREMENT PRIMARY KEY,          -- Unique like ID
-    user_id INT,                                     -- Foreign Key to Users table
+    like_id SERIAL PRIMARY KEY,                      -- Unique like ID
+    user_id INT NOT NULL,                             -- Foreign Key to Users table
     post_id INT,                                     -- Foreign Key to Posts table (nullable)
     comment_id INT,                                  -- Foreign Key to Comments table (nullable)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp when the like was made
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the like was made
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (post_id) REFERENCES Posts(post_id) ON DELETE CASCADE,
     FOREIGN KEY (comment_id) REFERENCES Comments(comment_id) ON DELETE CASCADE,
@@ -85,20 +85,20 @@ CREATE TABLE Likes (
 
 -- Groups Table: Stores groups that users can join
 CREATE TABLE Groups (
-    group_id INT AUTO_INCREMENT PRIMARY KEY,         -- Unique group ID
-    group_name VARCHAR(255) UNIQUE NOT NULL,          -- Name of the group
-    description TEXT,                                -- Description of the group
-    created_by INT,                                  -- Foreign Key to Users table (the user who created the group)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp when the group was created
+    group_id SERIAL PRIMARY KEY,                      -- Unique group ID
+    group_name VARCHAR(255) UNIQUE NOT NULL,           -- Name of the group
+    description TEXT,                                 -- Description of the group
+    created_by INT NOT NULL,                           -- Foreign Key to Users table (the user who created the group)
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the group was created
     FOREIGN KEY (created_by) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
 -- Group Memberships Table: Tracks users who belong to each group
 CREATE TABLE GroupMemberships (
-    group_membership_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique membership ID
-    user_id INT,                                         -- Foreign Key to Users table
-    group_id INT,                                        -- Foreign Key to Groups table
-    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,       -- Timestamp when the user joined the group
+    group_membership_id SERIAL PRIMARY KEY,          -- Unique membership ID
+    user_id INT NOT NULL,                             -- Foreign Key to Users table
+    group_id INT NOT NULL,                            -- Foreign Key to Groups table
+    joined_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the user joined the group
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (group_id) REFERENCES Groups(group_id) ON DELETE CASCADE,
     CONSTRAINT unique_membership UNIQUE (user_id, group_id)
@@ -106,48 +106,47 @@ CREATE TABLE GroupMemberships (
 
 -- Messages Table: Stores private messages sent between users
 CREATE TABLE Messages (
-    message_id INT AUTO_INCREMENT PRIMARY KEY,         -- Unique message ID
-    sender_id INT,                                     -- Foreign Key to Users table (sender)
-    receiver_id INT,                                   -- Foreign Key to Users table (receiver)
-    content TEXT NOT NULL,                             -- Content of the message
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- Timestamp when the message was sent
+    message_id SERIAL PRIMARY KEY,                    -- Unique message ID
+    sender_id INT NOT NULL,                           -- Foreign Key to Users table (sender)
+    receiver_id INT NOT NULL,                         -- Foreign Key to Users table (receiver)
+    content TEXT NOT NULL,                            -- Content of the message
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the message was sent
     FOREIGN KEY (sender_id) REFERENCES Users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (receiver_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
 -- Notifications Table: Stores notifications received by users
 CREATE TABLE Notifications (
-    notification_id INT AUTO_INCREMENT PRIMARY KEY,    -- Unique notification ID
-    user_id INT,                                       -- Foreign Key to Users table
-    type ENUM('Friend Request', 'Like', 'Comment', 'Message', 'Event', 'Group Invite') NOT NULL,  -- Type of notification
-    message TEXT,                                      -- Message associated with the notification
-    read_status BOOLEAN DEFAULT FALSE,                 -- Whether the notification has been read
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- Timestamp when the notification was created
+    notification_id SERIAL PRIMARY KEY,               -- Unique notification ID
+    user_id INT NOT NULL,                             -- Foreign Key to Users table
+    type VARCHAR(50) CHECK (type IN ('Friend Request', 'Like', 'Comment', 'Message', 'Event', 'Group Invite')),  -- Type of notification
+    message TEXT,                                     -- Message associated with the notification
+    read_status BOOLEAN DEFAULT FALSE,                -- Whether the notification has been read
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the notification was created
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
 -- Events Table: Stores events created by users
 CREATE TABLE Events (
-    event_id INT AUTO_INCREMENT PRIMARY KEY,           -- Unique event ID
-    user_id INT,                                       -- Foreign Key to Users table (creator of the event)
-    event_name VARCHAR(255) NOT NULL,                   -- Name of the event
-    event_description TEXT,                            -- Description of the event
-    event_date TIMESTAMP NOT NULL,                     -- Date and time of the event
-    location VARCHAR(255),                             -- Location of the event
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- Timestamp when the event was created
+    event_id SERIAL PRIMARY KEY,                      -- Unique event ID
+    user_id INT NOT NULL,                             -- Foreign Key to Users table (creator of the event)
+    event_name VARCHAR(255) NOT NULL,                  -- Name of the event
+    event_description TEXT,                           -- Description of the event
+    event_date TIMESTAMPTZ NOT NULL,                   -- Date and time of the event
+    location VARCHAR(255),                            -- Location of the event
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the event was created
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
 -- Media Table: Stores photos and videos uploaded by users
 CREATE TABLE Media (
-    media_id INT AUTO_INCREMENT PRIMARY KEY,           -- Unique media ID
-    user_id INT,                                       -- Foreign Key to Users table
-    media_type ENUM('Photo', 'Video') NOT NULL,         -- Type of media (Photo or Video)
-    media_url VARCHAR(255) NOT NULL,                    -- URL to the media content
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- Timestamp when the media was uploaded
+    media_id SERIAL PRIMARY KEY,                      -- Unique media ID
+    user_id INT NOT NULL,                             -- Foreign Key to Users table
+    media_type VARCHAR(10) CHECK (media_type IN ('Photo', 'Video')) NOT NULL, -- Type of media (Photo or Video)
+    media_url VARCHAR(255) NOT NULL,                   -- URL to the media content
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the media was uploaded
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
-
 
 ```
 
