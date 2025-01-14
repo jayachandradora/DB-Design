@@ -47,6 +47,17 @@ CREATE TABLE Posts (
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
+-- Followers Table: Represents the following relationship between users
+CREATE TABLE Followers (
+    follower_id INT NOT NULL,                        -- Foreign Key to Users table (the user who is following)
+    following_id INT NOT NULL,                       -- Foreign Key to Users table (the user being followed)
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the follow relationship was created
+    PRIMARY KEY (follower_id, following_id),         -- Composite primary key
+    FOREIGN KEY (follower_id) REFERENCES Users(user_id) ON DELETE CASCADE, -- Ensures that when a user is deleted, their followers are also removed
+    FOREIGN KEY (following_id) REFERENCES Users(user_id) ON DELETE CASCADE, -- Ensures that when a user is deleted, the users they follow are also removed
+    CONSTRAINT unique_follow UNIQUE (follower_id, following_id)              -- Prevents duplicate follow relationships
+);
+
 -- Friendships Table: Represents relationships between users
 CREATE TABLE Friendships (
     friendship_id SERIAL PRIMARY KEY,                -- Unique friendship ID
