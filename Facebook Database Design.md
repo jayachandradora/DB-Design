@@ -7,6 +7,119 @@ Face Book Data Base Design
 
 ## DB Design
 
+<img width="1610" alt="image" src="https://github.com/user-attachments/assets/5c3f7249-9806-4530-9747-2f749740e673" />
+
+```java
+
+Table users {
+  user_id INT [pk]
+  username VARCHAR(255) [unique]
+  email VARCHAR(255) [unique]
+  password_hash VARCHAR(255)
+  first_name VARCHAR(100)
+  last_name VARCHAR(100)
+  birthdate DATE
+  gender ENUM('Male', 'Female', 'Other')
+  created_at TIMESTAMP
+}
+
+Table profiles {
+  profile_id INT [pk]
+  user_id INT [ref: > users.user_id]
+  bio TEXT
+  profile_picture_url VARCHAR(255)
+  cover_picture_url VARCHAR(255)
+  location VARCHAR(255)
+  website_url VARCHAR(255)
+  updated_at TIMESTAMP
+}
+
+Table posts {
+  post_id INT [pk]
+  user_id INT [ref: > users.user_id]
+  content TEXT
+  image_url VARCHAR(255)
+  created_at TIMESTAMP
+}
+
+Table friendships {
+  friendship_id INT [pk]
+  user_id_1 INT [ref: > users.user_id]
+  user_id_2 INT [ref: > users.user_id]
+  status ENUM('Pending', 'Accepted', 'Blocked')
+  created_at TIMESTAMP
+}
+
+Table comments {
+  comment_id INT [pk]
+  post_id INT [ref: > posts.post_id]
+  user_id INT [ref: > users.user_id]
+  content TEXT
+  created_at TIMESTAMP
+}
+
+Table likes {
+  like_id INT [pk]
+  user_id INT [ref: > users.user_id]
+  post_id INT [ref: > posts.post_id, null]
+  comment_id INT [ref: > comments.comment_id, null]
+  created_at TIMESTAMP
+}
+
+Table groups {
+  group_id INT [pk]
+  group_name VARCHAR(255) [unique]
+  description TEXT
+  created_by INT [ref: > users.user_id]
+  created_at TIMESTAMP
+}
+
+Table group_memberships {
+  group_membership_id INT [pk]
+  user_id INT [ref: > users.user_id]
+  group_id INT [ref: > groups.group_id]
+  joined_at TIMESTAMP
+}
+
+Table messages {
+  message_id INT [pk]
+  sender_id INT [ref: > users.user_id]
+  receiver_id INT [ref: > users.user_id]
+  content TEXT
+  created_at TIMESTAMP
+}
+
+Table notifications {
+  notification_id INT [pk]
+  user_id INT [ref: > users.user_id]
+  type ENUM('Friend Request', 'Like', 'Comment', 'Message', 'Event', 'Group Invite')
+  message TEXT
+  read_status BOOLEAN [default: false]
+  created_at TIMESTAMP
+}
+
+Table events {
+  event_id INT [pk]
+  user_id INT [ref: > users.user_id]
+  event_name VARCHAR(255)
+  event_description TEXT
+  event_date TIMESTAMP
+  location VARCHAR(255)
+  created_at TIMESTAMP
+}
+
+Table media {
+  media_id INT [pk]
+  user_id INT [ref: > users.user_id]
+  media_type ENUM('Photo', 'Video')
+  media_url VARCHAR(255)
+  created_at TIMESTAMP
+}
+
+
+```
+
+
 ![image](https://user-images.githubusercontent.com/115500959/197022262-fdac9402-efc3-46ed-837e-a192ce27223a.png)
 
 ## SQL Query: Find Details Of your Friend
