@@ -7,7 +7,7 @@ Face Book Data Base Design
 
 ## DB Design
 
-<img width="1610" alt="image" src="https://github.com/user-attachments/assets/5c3f7249-9806-4530-9747-2f749740e673" />
+<img width="1298" alt="image" src="https://github.com/user-attachments/assets/b92ddc5a-18c4-4ba7-825b-12d453919ea2" />
 
 ```sql
 
