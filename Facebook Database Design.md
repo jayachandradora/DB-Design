@@ -161,6 +161,435 @@ CREATE TABLE Media (
 
 ```
 
+# JPA Data Model
+
+To convert your SQL schema into a Hibernate JPA data model, I'll create Java entity classes with the corresponding annotations. These classes will represent the tables you provided, and the relationships will be modeled using `@OneToMany`, `@ManyToOne`, `@ManyToMany`, and other JPA annotations.
+
+Below is the equivalent Hibernate JPA model for your SQL script:
+
+```java
+import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
+
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
+
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String passwordHash;
+
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    private Date birthdate;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Profile profile;
+
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts;
+
+    @OneToMany(mappedBy = "followerUser")
+    private List<Followers> followers;
+
+    @OneToMany(mappedBy = "followingUser")
+    private List<Followers> followings;
+
+    @OneToMany(mappedBy = "user")
+    private List<Friendship> friendships;
+
+    @OneToMany(mappedBy = "sender")
+    private List<Message> sentMessages;
+
+    @OneToMany(mappedBy = "receiver")
+    private List<Message> receivedMessages;
+
+    @OneToMany(mappedBy = "user")
+    private List<Notification> notifications;
+
+    @OneToMany(mappedBy = "user")
+    private List<Event> events;
+
+    @OneToMany(mappedBy = "user")
+    private List<Media> media;
+
+    @ManyToMany(mappedBy = "members")
+    private List<Group> groups;
+
+    // Getters and Setters
+}
+
+@Entity
+public class Profile {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long profileId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    private String bio;
+    private String profilePictureUrl;
+    private String coverPictureUrl;
+    private String location;
+    private String websiteUrl;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
+
+    // Getters and Setters
+}
+
+@Entity
+public class Post {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long postId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false)
+    private String content;
+
+    private String imageUrl;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    @OneToMany(mappedBy = "post")
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "post")
+    private List<Like> likes;
+
+    // Getters and Setters
+}
+
+@Entity
+public class Followers {
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "follower_user_id", nullable = false)
+    private User followerUser;
+
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "following_user_id", nullable = false)
+    private User followingUser;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    // Getters and Setters
+}
+
+@Entity
+public class Friendship {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long friendshipId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id_1", nullable = false)
+    private User user1;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id_2", nullable = false)
+    private User user2;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private FriendshipStatus status;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    // Getters and Setters
+}
+
+@Entity
+public class Comment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long commentId;
+
+    @ManyToOne
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false)
+    private String content;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    // Getters and Setters
+}
+
+@Entity
+public class Like {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long likeId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    @ManyToOne
+    @JoinColumn(name = "comment_id")
+    private Comment comment;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    // Getters and Setters
+}
+
+@Entity
+public class Group {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long groupId;
+
+    @Column(unique = true, nullable = false)
+    private String groupName;
+
+    private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    @ManyToMany
+    @JoinTable(
+            name = "group_memberships",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> members;
+
+    // Getters and Setters
+}
+
+@Entity
+public class GroupMembership {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long groupMembershipId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "group_id", nullable = false)
+    private Group group;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date joinedAt;
+
+    // Getters and Setters
+}
+
+@Entity
+public class Message {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long messageId;
+
+    @ManyToOne
+    @JoinColumn(name = "sender_id", nullable = false)
+    private User sender;
+
+    @ManyToOne
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private User receiver;
+
+    @Column(nullable = false)
+    private String content;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    // Getters and Setters
+}
+
+@Entity
+public class Notification {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long notificationId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Enumerated(EnumType.STRING)
+    private NotificationType type;
+
+    private String message;
+
+    @Column(nullable = false)
+    private Boolean readStatus = false;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    // Getters and Setters
+}
+
+@Entity
+public class Event {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long eventId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false)
+    private String eventName;
+
+    private String eventDescription;
+
+    @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date eventDate;
+
+    private String location;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    // Getters and Setters
+}
+
+@Entity
+public class Media {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long mediaId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MediaType mediaType;
+
+    @Column(nullable = false)
+    private String mediaUrl;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    // Getters and Setters
+}
+
+// Enum Types
+
+public enum Gender {
+    Male,
+    Female,
+    Other
+}
+
+public enum FriendshipStatus {
+    Pending,
+    Accepted,
+    Blocked
+}
+
+public enum NotificationType {
+    Friend_Request,
+    Like,
+    Comment,
+
+
+    Message,
+    Event,
+    Group_Invite
+}
+
+public enum MediaType {
+    Photo,
+    Video
+}
+```
+
+### Explanation:
+
+1. **Entity Classes**: 
+   - Each table corresponds to an entity class annotated with `@Entity`.
+   - The `@Id` annotation denotes the primary key.
+   - `@GeneratedValue` specifies how the primary key will be generated (using auto-increment in the database).
+
+2. **Relationships**:
+   - `@OneToMany`, `@ManyToOne`, and `@ManyToMany` are used to represent the relationships between entities. These map the foreign keys between the tables.
+   - For example, `@ManyToOne` is used for `user_id` in `Post`, which means each post is linked to a single user.
+
+3. **Enums**:
+   - `Gender`, `FriendshipStatus`, `NotificationType`, and `MediaType` are enums for constrained fields.
+
+4. **Timestamps**: 
+   - `@Temporal(TemporalType.TIMESTAMP)` is used to map `TIMESTAMPTZ` (timestamp with time zone) columns.
+
+5. **Cascade Operations**: 
+   - `CascadeType.ALL` is applied to ensure that child entities (like `Profile`) are deleted when the parent `User` is deleted.
+
+6. **`@JoinColumn` and `@ManyToMany`**:
+   - Used for many-to-many relationships, such as in the `Group` class with `GroupMembership`.
+
+This Java code represents a typical JPA-based data model and should work seamlessly with Hibernate as the JPA implementation.
+
 
 ![image](https://user-images.githubusercontent.com/115500959/197022262-fdac9402-efc3-46ed-837e-a192ce27223a.png)
 
