@@ -592,7 +592,7 @@ This Java code represents a typical JPA-based data model and should work seamles
 
 ## JPA Repository and Data Retrieval Implementation 
 
-Sure! Below are the JPA repositories and service layer implementations to handle the functionality you mentioned.
+Below are the JPA repositories and service layer implementations to handle the functionality you mentioned.
 
 ### 1. **Add Other Profiles as Friends**:
    To allow users to add other profiles as friends, we will need to handle friendship creation, which will involve adding a friendship request and accepting it.
