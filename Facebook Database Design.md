@@ -590,6 +590,368 @@ public enum MediaType {
 
 This Java code represents a typical JPA-based data model and should work seamlessly with Hibernate as the JPA implementation.
 
+## JPA Repository and Data retrieval implementation 
+
+Sure! Below are the JPA repositories and service layer implementations to handle the functionality you mentioned.
+
+### 1. **Add Other Profiles as Friends**:
+   To allow users to add other profiles as friends, we will need to handle friendship creation, which will involve adding a friendship request and accepting it.
+
+### 2. **Add Posts (Text, Photos, or Videos)**:
+   We will allow users to create posts containing text and optionally images or videos.
+
+### 3. **See Posts from Friends**:
+   To fetch posts made by friends, we will need to query for posts where the user is following other users.
+
+### 4. **Like and Comment on Posts**:
+   Users should be able to like and comment on posts created by others.
+
+Below is the implementation of the required functionality:
+
+### 1. **JPA Repositories**
+
+We will start by creating the JPA repositories for each entity.
+
+#### **UserRepository.java**
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    User findByUsername(String username);
+    User findByEmail(String email);
+}
+```
+
+#### **PostRepository.java**
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
+public interface PostRepository extends JpaRepository<Post, Long> {
+    List<Post> findByUserIn(List<User> users);
+}
+```
+
+#### **FriendshipRepository.java**
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
+
+public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
+    Optional<Friendship> findByUser1AndUser2(User user1, User user2);
+    Optional<Friendship> findByUser2AndUser1(User user1, User user2);
+}
+```
+
+#### **CommentRepository.java**
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
+public interface CommentRepository extends JpaRepository<Comment, Long> {
+    List<Comment> findByPost(Post post);
+}
+```
+
+#### **LikeRepository.java**
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
+
+public interface LikeRepository extends JpaRepository<Like, Long> {
+    Optional<Like> findByUserAndPost(User user, Post post);
+    Optional<Like> findByUserAndComment(User user, Comment comment);
+}
+```
+
+#### **FollowersRepository.java**
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
+
+public interface FollowersRepository extends JpaRepository<Followers, Long> {
+    Optional<Followers> findByFollowerUserAndFollowingUser(User follower, User following);
+}
+```
+
+### 2. **Service Layer**
+
+Next, let's create the service layer to implement the business logic for the functionality you requested.
+
+#### **FriendService.java**
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+
+@Service
+public class FriendService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private FriendshipRepository friendshipRepository;
+
+    @Autowired
+    private FollowersRepository followersRepository;
+
+    @Transactional
+    public void addFriend(String username1, String username2) {
+        User user1 = userRepository.findByUsername(username1);
+        User user2 = userRepository.findByUsername(username2);
+
+        if (user1 != null && user2 != null && !user1.equals(user2)) {
+            // Create friendship if it doesn't exist
+            Optional<Friendship> existingFriendship = friendshipRepository.findByUser1AndUser2(user1, user2);
+            if (existingFriendship.isEmpty()) {
+                Friendship friendship = new Friendship();
+                friendship.setUser1(user1);
+                friendship.setUser2(user2);
+                friendship.setStatus(FriendshipStatus.Pending);
+                friendshipRepository.save(friendship);
+            }
+
+            // Follow the other user
+            Followers follow = new Followers();
+            follow.setFollowerUser(user1);
+            follow.setFollowingUser(user2);
+            followersRepository.save(follow);
+        }
+    }
+
+    @Transactional
+    public void acceptFriend(String username1, String username2) {
+        User user1 = userRepository.findByUsername(username1);
+        User user2 = userRepository.findByUsername(username2);
+
+        if (user1 != null && user2 != null) {
+            // Find friendship and update status
+            Optional<Friendship> friendshipOptional = friendshipRepository.findByUser1AndUser2(user1, user2);
+            if (friendshipOptional.isPresent()) {
+                Friendship friendship = friendshipOptional.get();
+                friendship.setStatus(FriendshipStatus.Accepted);
+                friendshipRepository.save(friendship);
+            }
+        }
+    }
+
+    @Transactional
+    public void blockFriend(String username1, String username2) {
+        User user1 = userRepository.findByUsername(username1);
+        User user2 = userRepository.findByUsername(username2);
+
+        if (user1 != null && user2 != null) {
+            // Block the friendship
+            Optional<Friendship> friendshipOptional = friendshipRepository.findByUser1AndUser2(user1, user2);
+            if (friendshipOptional.isPresent()) {
+                Friendship friendship = friendshipOptional.get();
+                friendship.setStatus(FriendshipStatus.Blocked);
+                friendshipRepository.save(friendship);
+            }
+        }
+    }
+}
+```
+
+#### **PostService.java**
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+public class PostService {
+
+    @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Transactional
+    public Post createPost(String username, String content, String imageUrl, String mediaType) {
+        User user = userRepository.findByUsername(username);
+        if (user != null) {
+            Post post = new Post();
+            post.setUser(user);
+            post.setContent(content);
+            post.setImageUrl(imageUrl);
+
+            // Save post
+            return postRepository.save(post);
+        }
+        return null;
+    }
+
+    public List<Post> getPostsFromFriends(User user) {
+        // Find all the users the given user is following (friends)
+        List<User> friends = user.getFollowings().stream()
+                .map(follow -> follow.getFollowingUser())
+                .collect(Collectors.toList());
+        friends.add(user);  // Include the user's own posts
+
+        return postRepository.findByUserIn(friends);
+    }
+}
+```
+
+#### **LikeService.java**
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class LikeService {
+
+    @Autowired
+    private LikeRepository likeRepository;
+
+    @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Transactional
+    public void likePost(String username, Long postId) {
+        User user = userRepository.findByUsername(username);
+        Post post = postRepository.findById(postId).orElse(null);
+
+        if (user != null && post != null) {
+            Like like = new Like();
+            like.setUser(user);
+            like.setPost(post);
+            likeRepository.save(like);
+        }
+    }
+
+    @Transactional
+    public void likeComment(String username, Long commentId) {
+        User user = userRepository.findByUsername(username);
+        Comment comment = commentRepository.findById(commentId).orElse(null);
+
+        if (user != null && comment != null) {
+            Like like = new Like();
+            like.setUser(user);
+            like.setComment(comment);
+            likeRepository.save(like);
+        }
+    }
+}
+```
+
+#### **CommentService.java**
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+public class CommentService {
+
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Transactional
+    public Comment addComment(String username, Long postId, String content) {
+        User user = userRepository.findByUsername(username);
+        Post post = postRepository.findById(postId).orElse(null);
+
+        if (user != null && post != null) {
+            Comment comment = new Comment();
+            comment.setUser(user);
+            comment.setPost(post);
+            comment.setContent(content);
+
+            return commentRepository.save(comment);
+        }
+        return null;
+    }
+
+    public List<Comment> getCommentsForPost(Long postId) {
+        Post post = postRepository.findById(postId).orElse(null);
+        return post != null ? commentRepository.findByPost(post) : null;
+    }
+}
+```
+
+### 3. **Controller Layer**
+
+You can create REST controllers to interact with the service layer for each functionality. Here’s an example for the `PostController`:
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/posts")
+public class PostController {
+
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private LikeService likeService;
+
+    @Autowired
+    private CommentService commentService;
+
+    @PostMapping("/create")
+    public Post createPost(@RequestParam String username, @RequestParam String content, 
+                           @RequestParam(required = false) String imageUrl, @RequestParam(required = false) String mediaType) {
+        return postService.createPost(username, content, imageUrl, mediaType);
+    }
+
+    @GetMapping("/friends/{username}")
+    public List<Post> getPostsFromFriends(@PathVariable String username) {
+        User user = userRepository.findByUsername(username);
+        return postService.getPostsFromFriends(user);
+    }
+
+    @Post
+
+Mapping("/{postId}/like")
+    public void likePost(@RequestParam String username, @PathVariable Long postId) {
+        likeService.likePost(username, postId);
+    }
+
+    @PostMapping("/{postId}/comment")
+    public Comment addComment(@RequestParam String username, @PathVariable Long postId, @RequestParam String content) {
+        return commentService.addComment(username, postId, content);
+    }
+
+    @PostMapping("/{commentId}/like")
+    public void likeComment(@RequestParam String username, @PathVariable Long commentId) {
+        likeService.likeComment(username, commentId);
+    }
+}
+```
+
+### Conclusion
+
+This setup provides the necessary JPA repositories, service layer, and controllers for handling the functionality of adding friends, creating posts (text, photos, or videos), viewing posts from friends, liking and commenting on posts, and more.
+
+To fully implement the system, you would need to set up the Spring Boot application, configure the database, and create the necessary configurations for Hibernate. The code should work seamlessly once you integrate it into the Spring Boot project.
+
 
 ![image](https://user-images.githubusercontent.com/115500959/197022262-fdac9402-efc3-46ed-837e-a192ce27223a.png)
 
