@@ -590,7 +590,7 @@ public enum MediaType {
 
 This Java code represents a typical JPA-based data model and should work seamlessly with Hibernate as the JPA implementation.
 
-## JPA Repository and Data retrieval implementation 
+## JPA Repository and Data Retrieval Implementation 
 
 Sure! Below are the JPA repositories and service layer implementations to handle the functionality you mentioned.
 
