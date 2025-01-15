@@ -946,6 +946,131 @@ Mapping("/{postId}/like")
 }
 ```
 
+## Data Flow Diagram
+
+It's describe the flow of how data and control would move between the different layers (Repositories, Service, and Controller) for the functional requirements of the system, and then I'll summarize this into a flow diagram.
+
+### Flow Breakdown for Functional Requirements:
+
+#### 1. **User Profile Management (Create/Update Profile)**
+
+   - **User** interacts with the **`ProfileController`** to create or update their profile.
+   - **Controller**:
+     - Receives the HTTP request and calls the **`ProfileService`**.
+   - **Service**:
+     - The **`ProfileService`** interacts with the **`UserRepository`** (to fetch user data if needed) and the **`ProfileRepository`** (to update or create the profile).
+     - After processing, it updates the profile or creates a new one.
+   - **Repository**:
+     - The **`ProfileRepository`** handles all database interactions for the **`Profiles`** table.
+   - **Return**: Success response or error back to the **Controller**, which then sends a response to the **User**.
+
+#### 2. **Add Other Profiles as Friends (Send, Accept, Block Friend Request)**
+
+   - **User** interacts with the **`FriendController`** to add, accept, or block friends.
+   - **Controller**:
+     - Receives the HTTP request and calls the appropriate **`FriendService`** method.
+   - **Service**:
+     - **`FriendService`** interacts with the **`FriendshipRepository`** to create, update, or query friendships.
+     - For example, when sending a request, it checks if the users exist and then creates a **`Friendship`** entry in the database.
+     - When accepting a request, it updates the **`Friendship`** status.
+   - **Repository**:
+     - The **`FriendshipRepository`** handles creating and querying entries in the **`Friendships`** table.
+     - The **`FollowersRepository`** handles managing who follows whom, which is linked to the friend functionality.
+   - **Return**: Success or error response is sent back to the **Controller**, which then responds to the **User**.
+
+#### 3. **Post Creation (Text, Image, or Video)**
+
+   - **User** interacts with the **`PostController`** to create a new post.
+   - **Controller**:
+     - Receives the request (including text and optional media like image/video) and calls **`PostService`**.
+   - **Service**:
+     - **`PostService`** uses **`UserRepository`** to find the user and **`PostRepository`** to create a new **`Post`** in the database.
+     - If media is involved, **`MediaRepository`** is used to store media files.
+   - **Repository**:
+     - **`PostRepository`** handles inserting new posts into the **`Posts`** table.
+     - **`MediaRepository`** handles media content related to the posts (stored in the **`Media`** table).
+   - **Return**: The post is created, and a response is sent back to the **Controller**, which returns success to the **User**.
+
+#### 4. **See Posts from Friends**
+
+   - **User** interacts with the **`FeedController`** to see posts from their friends.
+   - **Controller**:
+     - Receives the request and calls **`PostService`** to fetch posts.
+   - **Service**:
+     - **`PostService`** queries the **`FollowersRepository`** to get the list of users (friends) the user is following.
+     - It then queries **`PostRepository`** for posts from those users.
+   - **Repository**:
+     - **`PostRepository`** is used to fetch posts from multiple users (friends) from the **`Posts`** table.
+     - **`FollowersRepository`** helps in determining the friends/followers of the user.
+   - **Return**: A list of posts is sent back to the **Controller**, which returns the feed to the **User**.
+
+#### 5. **Like and Comment on Posts**
+
+   - **User** interacts with the **`PostController`** to like or comment on a post.
+   - **Controller**:
+     - Receives the request (which can be a like or a comment) and calls **`LikeService`** or **`CommentService`**.
+   - **Service**:
+     - **`LikeService`** checks if the user already liked the post and either creates or retrieves a like record in the **`Likes`** table.
+     - **`CommentService`** handles adding comments to posts in the **`Comments`** table.
+   - **Repository**:
+     - **`LikeRepository`** is used to store or query the likes in the **`Likes`** table.
+     - **`CommentRepository`** is used to store or query comments in the **`Comments`** table.
+   - **Return**: The success response is sent back to the **Controller**, which sends the response to the **User**.
+
+---
+
+### Flow Diagram
+
+```plaintext
+   +-----------------------------------------------+
+   |                   User                       |
+   +-----------------------------------------------+
+                 |  |  |   |    |     |    | 
+   ----------------|--------------------------------------
+    Profile Creation |     Friend Request |   Post Creation
+   -----------------|--------------------------------------
+    |                                 |                    |
++------------------+            +-----------------+   +-----------------+
+| ProfileController|            |FriendController|   | PostController  |
++------------------+            +-----------------+   +-----------------+
+        |                              |                    |
+  +-------------+                  +-----------+         +-------------+
+  | ProfileService|                 | FriendService|      | PostService |
+  +-------------+                  +-----------+         +-------------+
+        |                              |                    |
+ +--------------+                +------------------+    +------------------+
+ |ProfileRepository|              | FriendshipRepo  |    |PostRepository    |
+ +--------------+                +------------------+    +------------------+
+        |                              |                    |
+ +-----------------+                  +-------------------+  +-----------------+
+ |   Database      |                  |    Database       |  |    Database     |
+ |  (Profiles)     |                  |(Friendships)      |  |   (Posts, Media)|
+ +-----------------+                  +-------------------+  +-----------------+  
+```
+
+### Key Flow Points in the Diagram:
+1. **User** initiates an action (e.g., creating a profile, adding friends, posting content, liking/commenting).
+2. The **Controller** receives the action and calls the appropriate **Service** method.
+3. The **Service** handles the logic, interacting with the relevant **Repository** to interact with the database.
+4. The **Repository** performs database operations (CRUD actions) on the relevant tables (**Profiles**, **Posts**, **Likes**, **Friendships**, etc.).
+5. The **Service** returns the result to the **Controller**, which sends the response back to the **User**.
+
+---
+
+### Detailed Flow for Example (e.g., Posting Content):
+
+1. **User** sends a request to **PostController** to create a post.
+2. **PostController** calls **PostService** to create a post.
+3. **PostService** validates and processes the data (e.g., checks if the user exists and has provided content).
+4. **PostService** calls **PostRepository** to insert the post into the **Posts** table and optionally calls **MediaRepository** for media content.
+5. **PostRepository** inserts the post data into the database, and **MediaRepository** handles media file storage.
+6. The post is successfully created, and **PostService** returns a success message to **PostController**.
+7. **PostController** sends the success response back to the **User**.
+
+---
+
+This diagram and flow breakdown help visualize how the application processes various functionalities through the repository, service, and controller layers.
+
 ### Conclusion
 
 This setup provides the necessary JPA repositories, service layer, and controllers for handling the functionality of adding friends, creating posts (text, photos, or videos), viewing posts from friends, liking and commenting on posts, and more.
