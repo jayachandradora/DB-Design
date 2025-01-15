@@ -5,7 +5,7 @@ Face Book Data Base Design
 ## Features
 ![image](https://user-images.githubusercontent.com/115500959/197022529-f7e7c010-8780-4cb9-8ad6-6606ec52b4aa.png)
 
-## DB Design
+## DB Design / ER Diagram
 
 <img width="1298" alt="image" src="https://github.com/user-attachments/assets/b92ddc5a-18c4-4ba7-825b-12d453919ea2" />
 
